@@ -1,0 +1,210 @@
+/* ==========================================================================
+   Sally Spa — design tokens & base styles
+   ========================================================================== */
+
+:root {
+  /* Colour ----------------------------------------------------------------
+       Near-monochrome. Four shades of white carry the page; black is the only
+       accent, used for text and for the single primary action. */
+  --white: #ffffff; /* pure white — loader wordmark, reversed text */
+  --paper: #faf9f6; /* page ground */
+  --paper-warm: #f1f0ec; /* alternating sections */
+  --paper-deep: #e7e5e0; /* navigation bar, hero fallback */
+  --ink: #121110; /* black — text and the accent */
+  --ink-soft: #6b6963; /* secondary copy */
+  --rule: #d6d4ce; /* hairlines and borders */
+  --rule-soft: #e3e1db; /* quieter dividers */
+
+  /* Type ------------------------------------------------------------------ */
+  --font-display: 'Cormorant Garamond', 'Times New Roman', serif;
+  --font-body: 'Lora', Georgia, serif;
+  --font-ui: 'Jost', 'Helvetica Neue', Arial, sans-serif;
+
+  /* Fluid type scale (~1.333 ratio) --------------------------------------- */
+  --step--2: 0.694rem;
+  --step--1: 0.833rem;
+  --step-0: 1rem;
+  --step-1: clamp(1.15rem, 1.05rem + 0.5vw, 1.333rem);
+  --step-2: clamp(1.45rem, 1.25rem + 1vw, 1.777rem);
+  --step-3: clamp(1.8rem, 1.45rem + 1.7vw, 2.369rem);
+  --step-4: clamp(2.2rem, 1.6rem + 3vw, 3.157rem);
+  --step-5: clamp(2.8rem, 1.8rem + 5vw, 4.5rem);
+
+  /* Layout ---------------------------------------------------------------- */
+  --gutter: clamp(1.25rem, 4vw, 4.5rem);
+  --measure: 62ch;
+  --nav-height: 4.25rem;
+  --section-space: clamp(5rem, 11vh, 9.5rem);
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Reset -------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  line-height: 1.12;
+  letter-spacing: 0.005em;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+  max-width: var(--measure);
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+/* Shared utilities ---------------------------------------------------------- */
+
+.shell {
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--section-space);
+}
+
+.section--warm {
+  background-color: var(--paper-warm);
+}
+
+/* Small tracked label — used sparingly, only where it names a real category */
+.eyebrow {
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 1.4rem;
+}
+
+.lede {
+  font-family: var(--font-display);
+  font-size: var(--step-4);
+  font-weight: 300;
+  line-height: 1.2;
+  max-width: 22ch;
+}
+
+.body-copy {
+  color: var(--ink-soft);
+  max-width: 46ch;
+}
+
+/* Underlined text link, Aman-style ----------------------------------------- */
+.link-underline {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--rule);
+  transition:
+    border-color 0.35s var(--ease),
+    color 0.35s var(--ease);
+}
+
+.link-underline:hover,
+.link-underline:focus-visible {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+/* Pill button --------------------------------------------------------------- */
+.pill-button {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  padding: 0.85rem 2.1rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background-color 0.4s var(--ease),
+    color 0.4s var(--ease);
+}
+
+.pill-button:hover,
+.pill-button:focus-visible {
+  background-color: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+/* Hairline divider ---------------------------------------------------------- */
+.rule {
+  border: 0;
+  border-top: 1px solid var(--rule-soft);
+  margin: 0;
+}
+
+/* Accessibility ------------------------------------------------------------- */
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
