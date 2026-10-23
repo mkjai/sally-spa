@@ -1,9 +1,12 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, inject, watch, onMounted, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { spa, featured } from '../data/spa.js'
 
 const heroVideo = ref(null)
+// True once the loading screen is gone. Falls back to true if this view is
+// ever used without the loader above it.
+const siteReady = inject('siteReady', ref(true))
 let poll = null
 let giveUpAt = 0
 
@@ -36,16 +39,22 @@ const stopPolling = () => {
   }
 }
 
-onMounted(() => {
+const start = () => {
+  if (poll) return
   play()
-
-  // Try roughly three times a second. Ten seconds is far longer than the
-  // loader needs, and polling ends as soon as the video is running.
-  giveUpAt = Date.now() + 10000
+  // Keep trying briefly in case the first frame hasn't buffered yet.
+  giveUpAt = Date.now() + 8000
   poll = setInterval(() => {
     if (Date.now() > giveUpAt) return stopPolling()
     play()
   }, 300)
+}
+
+onMounted(() => {
+  // Safari's autoplay refusal is sticky: once it denies an element, every
+  // later play() fails until the user taps. So the FIRST attempt has to come
+  // after the loader is gone and the video is genuinely on screen.
+  watch(siteReady, (ready) => ready && start(), { immediate: true })
 
   // Coming back to the tab, or unlocking the phone.
   document.addEventListener('visibilitychange', play)
