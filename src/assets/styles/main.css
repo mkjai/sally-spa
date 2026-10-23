@@ -30,6 +30,11 @@
   --step-4: clamp(2.2rem, 1.6rem + 3vw, 3.157rem);
   --step-5: clamp(2.8rem, 1.8rem + 5vw, 4.5rem);
 
+  /* Shape ------------------------------------------------------------------
+       One value for every rounded corner on the site: the nav surface, the
+       buttons, the hover fields and the jump links. Change it here only. */
+  --radius: 0.75rem;
+
   /* Layout ---------------------------------------------------------------- */
   --gutter: clamp(1.25rem, 4vw, 4.5rem);
   --measure: 62ch;
@@ -158,7 +163,7 @@ button {
   text-decoration: none;
   padding: 0.85rem 2.1rem;
   border: 1px solid var(--rule);
-  border-radius: 999px;
+  border-radius: var(--radius);
   background: transparent;
   cursor: pointer;
   transition:

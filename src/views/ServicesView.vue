@@ -115,7 +115,7 @@ import { menu, addOns, menuNote, spa } from '../data/spa.js'
   text-decoration: none;
   padding: 0.5rem 1.1rem;
   border: 1px solid var(--rule);
-  border-radius: 999px;
+  border-radius: var(--radius);
   transition:
     background-color 0.3s var(--ease),
     border-color 0.3s var(--ease);

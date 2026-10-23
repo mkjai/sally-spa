@@ -135,7 +135,7 @@ onUnmounted(() => {
 .nav__surface {
   display: flex;
   flex-direction: column;
-  border-radius: 999px;
+  border-radius: var(--radius);
   background-color: rgba(231, 229, 224, 0.48);
   backdrop-filter: blur(20px) saturate(120%);
   -webkit-backdrop-filter: blur(20px) saturate(120%);
@@ -212,7 +212,7 @@ onUnmounted(() => {
   background: transparent;
   border: 0;
   padding: 0.6rem 1.1rem;
-  border-radius: 999px;
+  border-radius: var(--radius);
   white-space: nowrap;
   cursor: pointer;
   transition: background-color 0.3s var(--ease);
@@ -268,10 +268,9 @@ onUnmounted(() => {
 /* Full-screen menu ---------------------------------------------------------- */
 
 .nav__menu {
-  /* Closed, this must take up no space at all — otherwise the surface grows
-     tall and the 999px radius renders it as a circle. `visibility: hidden`
-     alone keeps the box, so collapse the height too. Overflow clipping is safe
-     here: this element has no backdrop-filter of its own. */
+  /* Closed, this must take up no space at all, or the surface grows to fit it.
+     `visibility: hidden` alone keeps the box, so collapse the height too.
+     Overflow clipping is safe here: no backdrop-filter on this element. */
   flex: 0 0 0;
   height: 0;
   min-height: 0;
@@ -380,7 +379,7 @@ onUnmounted(() => {
   .nav.is-open .nav__surface {
     height: auto;
     max-height: 6rem;
-    border-radius: 999px;
+    border-radius: var(--radius);
   }
 
   .nav__menu {
