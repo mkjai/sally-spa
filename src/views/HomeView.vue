@@ -10,10 +10,9 @@ const siteReady = inject('siteReady', ref(true))
 let poll = null
 let giveUpAt = 0
 
-// iOS will not autoplay a video it considers invisible, and the loading screen
-// keeps the whole site at opacity 0 for the first few seconds. A fixed set of
-// retries can't know when that ends, so keep trying on a short interval and
-// stop the moment playback takes.
+// iOS will not autoplay a video it considers invisible, and its refusal is
+// sticky. Playback is therefore started only once the loader has gone, then
+// retried briefly until a frame is actually running.
 const play = () => {
   const el = heroVideo.value
   if (!el) return
@@ -40,7 +39,7 @@ const stopPolling = () => {
 }
 
 const start = () => {
-  if (poll) return
+  stopPolling()
   play()
   // Keep trying briefly in case the first frame hasn't buffered yet.
   giveUpAt = Date.now() + 8000
@@ -50,12 +49,33 @@ const start = () => {
   }, 300)
 }
 
+// WeChat's in-app browser blocks all autoplay until its own JS bridge has
+// initialised. Calling play() inside a WeixinJSBridge callback is the one
+// context it permits. Harmless everywhere else — the event never fires and
+// the global never exists outside WeChat.
+const startInWeChat = () => {
+  const viaBridge = () => {
+    try {
+      window.WeixinJSBridge.invoke('getNetworkType', {}, start)
+    } catch {
+      start()
+    }
+  }
+
+  if (window.WeixinJSBridge) viaBridge()
+  else document.addEventListener('WeixinJSBridgeReady', viaBridge, false)
+}
+
 onMounted(() => {
-  // Safari's autoplay refusal is sticky: once it denies an element, every
+  // An autoplay refusal is sticky: once a browser denies an element, every
   // later play() fails until the user taps. So the FIRST attempt has to come
   // after the loader is gone and the video is genuinely on screen.
   watch(siteReady, (ready) => ready && start(), { immediate: true })
 
+  startInWeChat()
+
+  // Once the video has enough data, try again — covers a slow first frame.
+  heroVideo.value?.addEventListener('canplay', play)
   // Coming back to the tab, or unlocking the phone.
   document.addEventListener('visibilitychange', play)
   // Final fallback: any touch or click is a user gesture, which satisfies
@@ -66,6 +86,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   stopPolling()
+  heroVideo.value?.removeEventListener('canplay', play)
   document.removeEventListener('visibilitychange', play)
   window.removeEventListener('touchstart', play)
   window.removeEventListener('click', play)
