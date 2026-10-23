@@ -7,15 +7,7 @@ import { spa, featured } from '../data/spa.js'
   <div class="home">
     <!-- Hero: video only, nothing over it but the navigation bar -->
     <section class="hero">
-      <video
-        class="hero__video"
-        autoplay
-        muted
-        loop
-        playsinline
-        poster="/media/hero-poster.jpg"
-        aria-hidden="true"
-      >
+      <video class="hero__video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
         <source src="/media/sally-spa-hero.mp4" type="video/mp4" />
       </video>
       <h1 class="visually-hidden">Sally's Spa at Pacific Palms Resort</h1>
