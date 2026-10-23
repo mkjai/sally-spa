@@ -1,13 +1,62 @@
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { spa, featured } from '../data/spa.js'
+
+const heroVideo = ref(null)
+const timers = []
+
+// iOS refuses to autoplay a video it considers covered or off-screen, and the
+// loading screen sits over the page for the first couple of seconds. The
+// `autoplay` attribute gets one attempt and then gives up, so drive playback
+// from here and retry until it takes.
+const play = () => {
+  const el = heroVideo.value
+  if (!el || !el.paused) return
+
+  // Safari only honours these as properties, not as template attributes.
+  el.muted = true
+  el.defaultMuted = true
+  el.playsInline = true
+
+  const attempt = el.play()
+  if (attempt) attempt.catch(() => {})
+}
+
+onMounted(() => {
+  play()
+  // Through and past the loader's exit.
+  for (const ms of [400, 1200, 2400, 3200]) timers.push(setTimeout(play, ms))
+
+  document.addEventListener('visibilitychange', play)
+  // Last resort: the first touch or click counts as a user gesture, which
+  // satisfies even the strictest autoplay policy.
+  window.addEventListener('touchstart', play, { once: true, passive: true })
+  window.addEventListener('click', play, { once: true })
+})
+
+onUnmounted(() => {
+  timers.forEach(clearTimeout)
+  document.removeEventListener('visibilitychange', play)
+  window.removeEventListener('touchstart', play)
+  window.removeEventListener('click', play)
+})
 </script>
 
 <template>
   <div class="home">
     <!-- Hero: video only, nothing over it but the navigation bar -->
     <section class="hero">
-      <video class="hero__video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+      <video
+        ref="heroVideo"
+        class="hero__video"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+        aria-hidden="true"
+      >
         <source src="/media/sally-spa-hero.mp4" type="video/mp4" />
       </video>
       <h1 class="visually-hidden">Sally's Spa at Pacific Palms Resort</h1>
