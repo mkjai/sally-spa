@@ -1,0 +1,14 @@
+{
+  // Static-assets-only Worker: no server code, just the built Vite output.
+  "name": "sally-spa",
+  "compatibility_date": "2026-10-23",
+
+  "assets": {
+    // What `npm run build` produces.
+    "directory": "./dist",
+
+    // Serve index.html for any unmatched path, so /services and /contact
+    // work on a direct visit or a reload instead of 404ing.
+    "not_found_handling": "single-page-application"
+  }
+}
