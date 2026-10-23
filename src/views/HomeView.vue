@@ -4,39 +4,59 @@ import { RouterLink } from 'vue-router'
 import { spa, featured } from '../data/spa.js'
 
 const heroVideo = ref(null)
-const timers = []
+let poll = null
+let giveUpAt = 0
 
-// iOS refuses to autoplay a video it considers covered or off-screen, and the
-// loading screen sits over the page for the first couple of seconds. The
-// `autoplay` attribute gets one attempt and then gives up, so drive playback
-// from here and retry until it takes.
+// iOS will not autoplay a video it considers invisible, and the loading screen
+// keeps the whole site at opacity 0 for the first few seconds. A fixed set of
+// retries can't know when that ends, so keep trying on a short interval and
+// stop the moment playback takes.
 const play = () => {
   const el = heroVideo.value
-  if (!el || !el.paused) return
+  if (!el) return
 
-  // Safari only honours these as properties, not as template attributes.
+  if (!el.paused && !el.ended && el.readyState > 2) {
+    stopPolling()
+    return
+  }
+
+  // Safari honours these only as properties, not as template attributes.
   el.muted = true
   el.defaultMuted = true
   el.playsInline = true
 
   const attempt = el.play()
-  if (attempt) attempt.catch(() => {})
+  if (attempt) attempt.then(stopPolling).catch(() => {})
+}
+
+const stopPolling = () => {
+  if (poll) {
+    clearInterval(poll)
+    poll = null
+  }
 }
 
 onMounted(() => {
   play()
-  // Through and past the loader's exit.
-  for (const ms of [400, 1200, 2400, 3200]) timers.push(setTimeout(play, ms))
 
+  // Try roughly three times a second. Ten seconds is far longer than the
+  // loader needs, and polling ends as soon as the video is running.
+  giveUpAt = Date.now() + 10000
+  poll = setInterval(() => {
+    if (Date.now() > giveUpAt) return stopPolling()
+    play()
+  }, 300)
+
+  // Coming back to the tab, or unlocking the phone.
   document.addEventListener('visibilitychange', play)
-  // Last resort: the first touch or click counts as a user gesture, which
-  // satisfies even the strictest autoplay policy.
-  window.addEventListener('touchstart', play, { once: true, passive: true })
-  window.addEventListener('click', play, { once: true })
+  // Final fallback: any touch or click is a user gesture, which satisfies
+  // even the strictest autoplay policy.
+  window.addEventListener('touchstart', play, { passive: true })
+  window.addEventListener('click', play)
 })
 
 onUnmounted(() => {
-  timers.forEach(clearTimeout)
+  stopPolling()
   document.removeEventListener('visibilitychange', play)
   window.removeEventListener('touchstart', play)
   window.removeEventListener('click', play)
